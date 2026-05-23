@@ -15,6 +15,7 @@ The implemented slice moves reusable touch lifecycle/runtime semantics out of th
 - explicit canceled-touch publication policy
 - provider-readable runtime diagnostics for touch semantics
 - provider-owned active owner/live-target summary fields so consumer hosts can present touch status without reinterpreting provider-owned continuity state locally
+- provider-owned interaction-summary snapshots for active target/phase/release feedback so consumer hosts can consume touch runtime status without stitching together multiple provider fields locally
 - provider-owned projected-data / target-resolution helper entrypoints that consumer probes can delegate through without re-owning the seam locally
 
 ## Explicit non-goals preserved

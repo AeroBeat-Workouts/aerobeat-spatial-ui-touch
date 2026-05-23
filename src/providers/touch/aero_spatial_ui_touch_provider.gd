@@ -88,6 +88,30 @@ func describe_runtime_state() -> Dictionary:
 		"last_projected_data": _last_projected_data.duplicate(true),
 	}
 
+func describe_interaction_summary() -> Dictionary:
+	var owner_summary := _describe_active_owner_state()
+	var owner_target_path: NodePath = owner_summary.get("owner_target_path", NodePath())
+	var live_target_path: NodePath = owner_summary.get("live_target_path", NodePath())
+	var preferred_target_path: NodePath = owner_target_path if owner_target_path != NodePath() else live_target_path
+	var has_active_pointer := not _active_touch_state.is_empty()
+	var active_phase: String = _last_published_phase if has_active_pointer else ""
+	return {
+		"is_touch_active": has_active_pointer,
+		"active_pointer_count": _active_touch_state.size(),
+		"active_pointer_id": owner_summary.get("pointer_id", ""),
+		"preferred_target_path": preferred_target_path,
+		"preferred_target_label": _path_label(preferred_target_path),
+		"owner_target_path": owner_target_path,
+		"owner_target_label": _path_label(owner_target_path),
+		"live_target_path": live_target_path,
+		"live_target_label": _path_label(live_target_path),
+		"state_phase": active_phase,
+		"has_active_owner": owner_summary.get("has_active_owner", false),
+		"has_active_live_target": owner_summary.get("has_active_live_target", false),
+		"last_release_target_path": _last_release_target_path,
+		"last_forwarded_panel_event": _last_forwarded_panel_event,
+	}
+
 func reset_runtime_state() -> void:
 	_active_touch_state = {}
 	_last_projected_data = {}

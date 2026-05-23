@@ -30,6 +30,7 @@ static func describe_extracted_slice() -> Dictionary:
 		"owns_off_surface_release_continuation": true,
 		"owns_canceled_touch_publication_policy": true,
 		"owns_provider_runtime_diagnostics": true,
+		"owns_interaction_summary_snapshot": true,
 		"owns_contract_definition": false,
 		"owns_native_2d_bridge": false,
 		"owns_world_hit_acquisition": false,

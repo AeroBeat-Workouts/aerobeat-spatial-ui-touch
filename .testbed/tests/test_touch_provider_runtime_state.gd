@@ -42,11 +42,42 @@ func test_runtime_state_reports_owner_hover_and_manifest_truth() -> void:
 	assert_eq(str(raw_metadata.get("host_surface", "")), "PanelInputSurface")
 	assert_eq(str(raw_metadata.get("target_resolution", "")), "rect_target_specs")
 
+	var interaction_summary: Dictionary = provider.describe_interaction_summary()
+	assert_true(bool(interaction_summary.get("is_touch_active", false)))
+	assert_eq(int(interaction_summary.get("active_pointer_count", -1)), 1)
+	assert_eq(str(interaction_summary.get("active_pointer_id", "")), "touch_0")
+	assert_eq(str(interaction_summary.get("preferred_target_path", NodePath())), "Root/PrimaryActionButton")
+	assert_eq(str(interaction_summary.get("preferred_target_label", "")), "PrimaryActionButton")
+	assert_eq(str(interaction_summary.get("owner_target_label", "")), "PrimaryActionButton")
+	assert_eq(str(interaction_summary.get("live_target_label", "")), "SecondaryActionButton")
+	assert_eq(str(interaction_summary.get("state_phase", "")), "drag_begin")
+
 	var summary: Dictionary = MANIFEST_SCRIPT.ownership_summary()
 	assert_true(summary.get("implements_touch_runtime_behavior", false))
 	assert_eq(summary.get("expected_source_variant"), "screen_touch")
 	assert_eq(summary.get("expected_surface_type"), "hybrid_3d_gui")
 	assert_eq(summary.get("expected_verification_status"), "unverified")
+
+
+func test_interaction_summary_clears_after_release_but_retains_release_feedback() -> void:
+	var harness = HARNESS_SCRIPT.new()
+	var runtime = await harness.spawn(self)
+	var provider = runtime["provider"]
+	var adapter = runtime["adapter"]
+	var surface = runtime["surface"]
+
+	var press_hit := harness.build_hit(surface, Vector2(0.20, 0.20), Vector2(200.0, 200.0))
+	assert_true(provider.publish_input_event(adapter, surface, harness.make_touch_press(0, Vector2(200.0, 200.0), true), press_hit))
+	assert_true(provider.publish_input_event(adapter, surface, harness.make_touch_press(0, Vector2(900.0, 900.0), false), harness.build_off_surface_hit(Vector2(900.0, 900.0))))
+
+	var interaction_summary: Dictionary = provider.describe_interaction_summary()
+	assert_false(bool(interaction_summary.get("is_touch_active", true)))
+	assert_eq(int(interaction_summary.get("active_pointer_count", -1)), 0)
+	assert_eq(str(interaction_summary.get("state_phase", "not-empty")), "")
+	assert_eq(str(interaction_summary.get("preferred_target_path", NodePath())), "")
+	assert_eq(str(interaction_summary.get("preferred_target_label", "not-none")), "none")
+	assert_eq(str(interaction_summary.get("last_release_target_path", "")), "Root/PrimaryActionButton")
+	assert_string_contains(str(interaction_summary.get("last_forwarded_panel_event", "")), "publish touch release #0")
 
 
 func test_provider_exposes_packaged_probe_helpers_for_target_resolution_and_projected_data() -> void:
