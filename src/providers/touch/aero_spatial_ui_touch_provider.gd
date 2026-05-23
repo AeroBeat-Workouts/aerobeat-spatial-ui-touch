@@ -65,12 +65,19 @@ func describe_boundary() -> Dictionary:
 	}
 
 func describe_runtime_state() -> Dictionary:
+	var owner_summary := _describe_active_owner_state()
 	return {
 		"pointer_id_prefix": pointer_id_prefix,
 		"drag_threshold_pixels": drag_threshold_pixels,
 		"active_pointer_count": _active_touch_state.size(),
 		"active_pointer_ids": PackedStringArray(_active_touch_state.keys()),
 		"active_touch_state": _active_touch_state.duplicate(true),
+		"active_pointer_id": owner_summary.get("pointer_id", ""),
+		"active_owner_target_path": owner_summary.get("owner_target_path", NodePath()),
+		"active_live_target_path": owner_summary.get("live_target_path", NodePath()),
+		"active_drag_started": owner_summary.get("drag_started", false),
+		"has_active_owner": owner_summary.get("has_active_owner", false),
+		"has_active_live_target": owner_summary.get("has_active_live_target", false),
 		"last_pointer_id": _last_pointer_id,
 		"last_touch_index": _last_touch_index,
 		"last_published_phase": _last_published_phase,
@@ -285,6 +292,29 @@ func _publish_projected_phase(
 	overrides: Dictionary
 ) -> void:
 	adapter.publish_projected_phase(phase, pointer_id, projected_data, overrides)
+
+func _describe_active_owner_state() -> Dictionary:
+	if _active_touch_state.is_empty():
+		return {
+			"pointer_id": "",
+			"owner_target_path": NodePath(),
+			"live_target_path": NodePath(),
+			"drag_started": false,
+			"has_active_owner": false,
+			"has_active_live_target": false,
+		}
+	var pointer_id = _active_touch_state.keys()[0]
+	var pointer_state: Dictionary = _active_touch_state.get(pointer_id, {})
+	var owner_target_path: NodePath = pointer_state.get("owner_target_path", NodePath())
+	var live_target_path: NodePath = pointer_state.get("live_target_path", NodePath())
+	return {
+		"pointer_id": str(pointer_id),
+		"owner_target_path": owner_target_path,
+		"live_target_path": live_target_path,
+		"drag_started": bool(pointer_state.get("drag_started", false)),
+		"has_active_owner": owner_target_path != NodePath(),
+		"has_active_live_target": live_target_path != NodePath(),
+	}
 
 func _build_target_resolver():
 	var resolver_script = load(RECT_TARGET_RESOLVER_SCRIPT_PATH)
