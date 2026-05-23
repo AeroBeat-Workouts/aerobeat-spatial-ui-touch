@@ -2,26 +2,26 @@
 
 `aerobeat-spatial-ui-touch` is the AeroBeat repo for the **touch-driven spatial UI provider** lane.
 
-This package is the dedicated bootstrap repo for reusable touch lifecycle/runtime behavior on projected spatial UI surfaces. It is intentionally still in the bootstrap phase: the repo now owns the touch-lane package boundary, docs, manifests, and test scaffolding, but it does **not** yet claim that the extracted touch provider implementation has landed.
+This package now owns the first truthful extracted slice of reusable touch lifecycle/runtime behavior for projected spatial UI surfaces. The repo keeps touch pointer continuity, off-surface release continuation, cancel policy, and provider runtime diagnostics local to this package while leaving proof-host world-hit acquisition and proof-scene composition outside the repo.
 
 ## Current status
 
 This repository now contains:
 
-- explicit touch-lane package scaffolding under `src/providers/touch/`
-- boundary docs that freeze repo ownership for touch lifecycle/runtime work only
-- inert manifest/runtime/config guardrails that pin dependency and non-goal truth
-- test scaffolding that names the required touch semantic slices up front
+- concrete touch provider runtime behavior under `src/providers/touch/`
+- boundary docs that freeze repo ownership for touch lifecycle/runtime semantics only
+- package/runtime manifests that pin dependency and non-goal truth
+- provider-local semantic tests for press/release, drag ordering, cancel handling, runtime state, and dependency boundaries
 - a `.testbed/` workbench manifest that points at the canonical contract and shared helper owners
 
-The current bootstrap is intentionally narrow:
+The current implementation is intentionally narrow:
 
-- **included now:** package identity, dependency truth, runtime-boundary placeholders, manifest metadata, and named semantic test scaffolding
-- **deferred on purpose:** real touch lifecycle/provider behavior, world-hit acquisition, proof-host composition, and any contract/helper ownership changes
+- **included now:** touch lifecycle/runtime semantics, owner continuity, off-surface release continuation, canceled-touch publication, provider runtime diagnostics, and packaged shared-helper composition
+- **still intentionally excluded:** world-hit acquisition, proof-host composition/debug UI, canonical contract ownership, and shared helper ownership changes
 
 ## Planned responsibility boundary
 
-`aerobeat-spatial-ui-touch` is intended to own reusable touch-specific spatial UI provider behavior such as:
+`aerobeat-spatial-ui-touch` owns reusable touch-specific spatial UI provider behavior such as:
 
 - touch pointer runtime state for projected spatial surfaces
 - press/drag/release owner continuity for touch input
@@ -40,7 +40,7 @@ It is **not** intended to become:
 
 ## Repository details
 
-- **Type:** Spatial UI provider bootstrap
+- **Type:** Spatial UI provider package
 - **License:** Mozilla Public License 2.0 (MPL 2.0)
 - **Dependency truth:**
   - `aerobeat-input-core` owns the canonical UI interaction contract
@@ -49,7 +49,7 @@ It is **not** intended to become:
 
 ## Runtime files
 
-The bootstrap provider surface lives under:
+The concrete provider surface lives under:
 
 - `src/providers/touch/aero_spatial_ui_touch_provider.gd`
 - `src/providers/touch/aero_spatial_ui_touch_provider_config.gd`
@@ -113,7 +113,7 @@ godot --headless --path .testbed --script addons/gut/gut_cmdln.gd \
 
 - `.testbed/addons.jsonc` is the committed dev/test dependency manifest.
 - `docs/phase-1-boundary-freeze.md` records the ownership line.
-- `docs/phase-2-first-touch-provider-extraction.md` is currently a stub for the first real extraction slice.
-- The named tests intentionally pin semantic goals such as press/release continuity, drag ordering, cancel handling, runtime state, and dependency truth before implementation starts.
-- `source_variant == "screen_touch"`, `surface_type == "hybrid_3d_gui"`, and `verification_status == "unverified"` remain part of the expected future semantic packet.
-- Consumer proof in `aerobeat-ui-kit-community` still remains mandatory after this bootstrap.
+- `docs/phase-2-first-touch-provider-extraction.md` records the extracted slice and parity truth.
+- Provider-local tests pin semantic goals such as press/release continuity, drag ordering, cancel handling, runtime state, and dependency truth.
+- `source_variant == "screen_touch"`, `surface_type == "hybrid_3d_gui"`, and `verification_status == "unverified"` remain required runtime truth.
+- Consumer proof in `aerobeat-ui-kit-community` remains mandatory downstream.

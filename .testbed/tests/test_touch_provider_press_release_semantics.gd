@@ -1,18 +1,46 @@
 extends GutTest
 
-const PROVIDER_SCRIPT_PATH := "res://../src/providers/touch/aero_spatial_ui_touch_provider.gd"
-const EXTRACTION_DOC_PATH := "res://../docs/phase-2-first-touch-provider-extraction.md"
+const HARNESS_SCRIPT := preload("res://tests/support/touch_provider_test_harness.gd")
 
-func test_press_release_semantics_are_named_but_not_claimed_as_implemented():
-	var provider = load(PROVIDER_SCRIPT_PATH).new()
+func test_press_release_semantics_preserve_press_owner_and_unverified_truth() -> void:
+	var harness = HARNESS_SCRIPT.new()
+	var runtime = await harness.spawn(self)
+	var provider = runtime["provider"]
+	var adapter = runtime["adapter"]
+	var surface = runtime["surface"]
+	var events: Array = runtime["events"]
+
 	var boundary: Dictionary = provider.describe_boundary()
-	assert_eq(boundary.get("provider_lane"), "touch")
+	assert_true(boundary.get("implements_runtime_behavior", false))
 	assert_true(boundary.get("owns_touch_provider_runtime", false))
-	assert_false(boundary.get("implements_runtime_behavior", true))
-	assert_eq(boundary.get("expected_source_variant"), "screen_touch")
-	assert_eq(boundary.get("expected_surface_type"), "hybrid_3d_gui")
+	assert_false(boundary.get("owns_world_hit_acquisition", true))
 	assert_eq(boundary.get("expected_verification_status"), "unverified")
 
-	var extraction_doc := FileAccess.get_file_as_string(EXTRACTION_DOC_PATH)
-	assert_string_contains(extraction_doc, "press_end.target_path")
-	assert_string_contains(extraction_doc, "ordinary release-outside remains `press_end`, not `cancel`, when continuity exists")
+	var press_hit := harness.build_hit(surface, Vector2(0.20, 0.20), Vector2(200.0, 200.0))
+	var press := harness.make_touch_press(0, Vector2(200.0, 200.0), true)
+	assert_true(provider.publish_input_event(adapter, surface, press, press_hit))
+	assert_eq(events.size(), 1)
+	assert_eq(str(events[0].phase), "press_begin")
+	assert_eq(str(events[0].pointer_id), "touch_0")
+	assert_eq(str(events[0].target_path), "Root/PrimaryActionButton")
+	assert_eq(str(events[0].source_variant), "screen_touch")
+	assert_eq(str(events[0].surface_type), "hybrid_3d_gui")
+	assert_eq(str(events[0].verification_status), "unverified")
+
+	var release := harness.make_touch_press(0, Vector2(900.0, 900.0), false)
+	assert_true(provider.publish_input_event(adapter, surface, release, harness.build_off_surface_hit(Vector2(900.0, 900.0))))
+	assert_eq(events.size(), 2)
+	assert_eq(str(events[1].phase), "press_end")
+	assert_eq(str(events[1].target_path), "Root/PrimaryActionButton")
+
+	var state: Dictionary = provider.describe_runtime_state()
+	assert_eq(int(state.get("active_pointer_count", -1)), 0)
+	assert_eq(str(state.get("last_release_target_path", "")), "Root/PrimaryActionButton")
+	assert_eq(str(state.get("last_published_phase", "")), "press_end")
+	var projected_data: Dictionary = state.get("last_projected_data", {})
+	var raw_metadata: Dictionary = projected_data.get("raw_metadata", {})
+	assert_true(bool(raw_metadata.get("off_surface_continuation", false)))
+	assert_eq(str(raw_metadata.get("published_target_path", "")), "Root/PrimaryActionButton")
+	assert_eq(str(raw_metadata.get("owner_target_path", "")), "Root/PrimaryActionButton")
+	assert_eq(str(raw_metadata.get("host_surface", "")), "PanelInputSurface")
+	assert_eq(str(raw_metadata.get("target_resolution", "")), "rect_target_specs")

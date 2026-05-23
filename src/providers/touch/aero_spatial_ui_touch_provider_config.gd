@@ -1,24 +1,38 @@
 @tool
-extends Resource
+extends RefCounted
 class_name AeroSpatialUiTouchProviderConfig
 
-const EXTRACTION_PHASE := "phase_1_touch_bootstrap_boundary_truth"
+const DEFAULT_PROVIDER_LANE := "touch"
+const DEFAULT_POINTER_ID_PREFIX := "touch_"
+const DEFAULT_DRAG_THRESHOLD_PIXELS := 12.0
 
-var host_surface: NodePath = NodePath()
+var contract_owner_package := "aerobeat-input-core"
+var shared_helper_owner_package := "aerobeat-spatial-ui-core"
+var extraction_phase := "phase_2_first_touch_provider_extraction"
+var pointer_id_prefix := DEFAULT_POINTER_ID_PREFIX
+var drag_threshold_pixels := DEFAULT_DRAG_THRESHOLD_PIXELS
+var host_surface := ""
 var target_resolution := "rect_target_specs"
-var pointer_id_prefix := "touch_"
-var drag_threshold := 12.0
 var enable_runtime_diagnostics := false
 
 func to_boundary_snapshot() -> Dictionary:
 	return {
-		"provider_lane": "touch",
-		"extraction_phase": EXTRACTION_PHASE,
+		"provider_lane": DEFAULT_PROVIDER_LANE,
+		"contract_owner_package": contract_owner_package,
+		"shared_helper_owner_package": shared_helper_owner_package,
+		"extraction_phase": extraction_phase,
+		"pointer_id_prefix": pointer_id_prefix,
+		"drag_threshold_pixels": drag_threshold_pixels,
 		"host_surface": host_surface,
 		"target_resolution": target_resolution,
-		"pointer_id_prefix": pointer_id_prefix,
-		"drag_threshold": drag_threshold,
 		"enable_runtime_diagnostics": enable_runtime_diagnostics,
-		"contract_owner_package": "aerobeat-input-core",
-		"shared_helper_owner_package": "aerobeat-spatial-ui-core",
+	}
+
+func to_runtime_context() -> Dictionary:
+	return {
+		"pointer_id_prefix": pointer_id_prefix,
+		"drag_threshold_pixels": drag_threshold_pixels,
+		"host_surface": host_surface,
+		"target_resolution": target_resolution,
+		"enable_runtime_diagnostics": enable_runtime_diagnostics,
 	}
