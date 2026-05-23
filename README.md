@@ -1,71 +1,69 @@
-# AeroBeat Spatial UI Adapter Template
+# AeroBeat Spatial UI Touch
 
-This is the official template for creating a **spatial UI adapter** repository within the AeroBeat ecosystem.
+`aerobeat-spatial-ui-touch` is the AeroBeat repo for the **touch-driven spatial UI provider** lane.
 
-A spatial UI adapter turns host-driven world, projected, or hybrid pointer detection into AeroBeat's shared UI interaction contract. Use this template for concrete adapter repos such as desktop mouse, touch, or XR providers that publish into the canonical contract owned by `aerobeat-input-core`.
+This package is the dedicated bootstrap repo for reusable touch lifecycle/runtime behavior on projected spatial UI surfaces. It is intentionally still in the bootstrap phase: the repo now owns the touch-lane package boundary, docs, manifests, and test scaffolding, but it does **not** yet claim that the extracted touch provider implementation has landed.
 
-This template stays intentionally bounded:
+## Current status
 
-- `aerobeat-input-core` remains the canonical owner of the UI interaction contract and bus.
-- `aerobeat-spatial-ui-core` remains the shared helper layer for spatial provider infrastructure, including packaged resolver/projection seams reused by concrete providers.
-- Repos created from this template should implement one concrete spatial provider lane, not redefine the contract and not absorb shared helper ownership.
-- Consumer repos should compose packaged providers and helpers; they should not become the long-term home of provider-local fallback ownership or cross-provider glue.
-- Native 2D bridge work belongs in `aerobeat-input-core`, not in repos generated from this template.
+This repository now contains:
 
-## Post-Phase-3 architecture status
+- explicit touch-lane package scaffolding under `src/providers/touch/`
+- boundary docs that freeze repo ownership for touch lifecycle/runtime work only
+- inert manifest/runtime/config guardrails that pin dependency and non-goal truth
+- test scaffolding that names the required touch semantic slices up front
+- a `.testbed/` workbench manifest that points at the canonical contract and shared helper owners
 
-This repository now includes the minimum scaffolding needed to template the post-Phase-3 ownership boundary correctly.
+The current bootstrap is intentionally narrow:
 
-That currently means:
+- **included now:** package identity, dependency truth, runtime-boundary placeholders, manifest metadata, and named semantic test scaffolding
+- **deferred on purpose:** real touch lifecycle/provider behavior, world-hit acquisition, proof-host composition, and any contract/helper ownership changes
 
-- placeholder runtime/configuration classes under `src/template/`
-- a boundary note in `docs/phase-1-boundary-freeze.md`
-- tests that pin `aerobeat-input-core` as the contract owner
-- tests and docs that pin `aerobeat-spatial-ui-core` as the shared packaged helper-layer owner
-- inert template metadata that tells downstream repos to keep concrete provider behavior in their own lane
-- explicit guidance that touch and XR work should grow into separate provider repos instead of consumer-repo glue
+## Planned responsibility boundary
 
-Current non-goals for this template:
+`aerobeat-spatial-ui-touch` is intended to own reusable touch-specific spatial UI provider behavior such as:
 
-- no concrete adapter runtime behavior here
-- no canonical interaction contract definitions here
-- no native 2D bridge logic here
-- no shared cross-provider helper ownership here
-- no provider-local projected-target fallback ownership here
-- no consumer-repo proof-host glue ownership here
-- no direct extraction of proof-scene behavior into the template
+- touch pointer runtime state for projected spatial surfaces
+- press/drag/release owner continuity for touch input
+- off-surface continuation using prior projected state when continuity exists
+- canceled-touch publication policy
+- provider-local runtime diagnostics for touch semantics
 
-## 📋 Repository Details
+It is **not** intended to become:
 
-- **Type:** Spatial UI Adapter Template
-- **License:** **Mozilla Public License 2.0 (MPL 2.0)**
-- **Current baseline dependencies:**
-  - `aerobeat-input-core` (canonical UI interaction contract)
-  - `aerobeat-spatial-ui-core` (shared spatial provider helpers)
-  - `gut` (repo-local validation)
-- **Template scaffolding:**
-  - `src/template/` (placeholder runtime/configuration surface for downstream concrete adapters)
-  - `docs/phase-1-boundary-freeze.md` (repo boundary contract)
-- **Intended downstream examples:**
-  - `aerobeat-spatial-ui-mouse`
-  - future `aerobeat-spatial-ui-touch`
-  - future `aerobeat-spatial-ui-xr`
+- a second contract-definition repo
+- the owner of the canonical interaction taxonomy or bus
+- the home of the native 2D bridge path
+- the owner of shared cross-provider spatial helpers
+- the owner of proof-host camera ray/world-hit acquisition
+- a proof-scene composition repo
 
-## Provider-lane guidance for downstream repos
+## Repository details
 
-Repos created from this template should stay narrow and truthful:
+- **Type:** Spatial UI provider bootstrap
+- **License:** Mozilla Public License 2.0 (MPL 2.0)
+- **Dependency truth:**
+  - `aerobeat-input-core` owns the canonical UI interaction contract
+  - `aerobeat-spatial-ui-core` owns shared spatial-provider helper scaffolding
+  - `gut` drives repo-local validation
 
-- a mouse repo owns mouse-specific spatial lifecycle behavior
-- a touch repo owns touch-specific spatial lifecycle behavior
-- an XR repo owns XR-specific spatial lifecycle behavior
-- shared resolver/projection/helper ownership stays packaged in `aerobeat-spatial-ui-core`
-- the canonical interaction contract stays in `aerobeat-input-core`
+## Runtime files
 
-If a consumer/proof repo still needs temporary world-hit composition, compatibility wrappers, or experiment-specific scene glue, keep that as consumer-side composition until it is ready to move into a dedicated provider lane. Do not normalize that glue back into a generated adapter repo.
+The bootstrap provider surface lives under:
+
+- `src/providers/touch/aero_spatial_ui_touch_provider.gd`
+- `src/providers/touch/aero_spatial_ui_touch_provider_config.gd`
+- `src/providers/touch/aero_spatial_ui_touch_runtime_boundary.gd`
+- `src/providers/touch/aero_spatial_ui_touch_manifest.gd`
+
+Key repo-local docs:
+
+- `docs/phase-1-boundary-freeze.md`
+- `docs/phase-2-first-touch-provider-extraction.md`
 
 ## GodotEnv development flow
 
-This repo uses the AeroBeat GodotEnv package convention.
+This repo follows the AeroBeat GodotEnv package convention.
 
 - Canonical dev/test manifest: `.testbed/addons.jsonc`
 - Installed dev/test addons: `.testbed/addons/`
@@ -73,7 +71,7 @@ This repo uses the AeroBeat GodotEnv package convention.
 - Hidden workbench project: `.testbed/project.godot`
 - Repo-local unit tests: `.testbed/tests/`
 
-The repo root remains the package/published boundary for downstream consumers. Day-to-day development, debugging, and validation happen from the hidden `.testbed/` workbench using the pinned OpenClaw toolchain: Godot `4.6.2 stable standard`.
+The repo root remains the package boundary for downstream consumers. Direct development, smoke checks, and unit validation happen from the hidden `.testbed/` workbench.
 
 ### Restore dev/test dependencies
 
@@ -84,8 +82,6 @@ cd .testbed
 godotenv addons install
 ```
 
-That restores this repo's current dev/test manifest into `.testbed/addons/`.
-
 ### Open the workbench
 
 From the repo root:
@@ -93,8 +89,6 @@ From the repo root:
 ```bash
 godot --editor --path .testbed
 ```
-
-Use this `.testbed/` project as the canonical direct-development and bugfinding surface for spatial adapter work.
 
 ### Import smoke check
 
@@ -115,12 +109,11 @@ godot --headless --path .testbed --script addons/gut/gut_cmdln.gd \
   -gexit
 ```
 
-### Validation notes
+## Validation notes
 
-- `.testbed/addons.jsonc` is the committed dev/test dependency contract.
-- The current template baseline pins the canonical UI interaction contract, the shared spatial helper layer, and GUT.
-- Repo-local unit tests live under `.testbed/tests/`.
-- The current package shape is consumed from the repo root (`subfolder: "/"`) for downstream installs.
-- `src/template/` exists only to template the ownership boundary; it is not a real adapter implementation.
-- Repos created from this template should publish concrete spatial-provider behavior without expanding into new contract ownership.
-- Repos created from this template should inherit the packaged helper/provider split directly instead of reintroducing provider-local fallback seams in consumer repos.
+- `.testbed/addons.jsonc` is the committed dev/test dependency manifest.
+- `docs/phase-1-boundary-freeze.md` records the ownership line.
+- `docs/phase-2-first-touch-provider-extraction.md` is currently a stub for the first real extraction slice.
+- The named tests intentionally pin semantic goals such as press/release continuity, drag ordering, cancel handling, runtime state, and dependency truth before implementation starts.
+- `source_variant == "screen_touch"`, `surface_type == "hybrid_3d_gui"`, and `verification_status == "unverified"` remain part of the expected future semantic packet.
+- Consumer proof in `aerobeat-ui-kit-community` still remains mandatory after this bootstrap.

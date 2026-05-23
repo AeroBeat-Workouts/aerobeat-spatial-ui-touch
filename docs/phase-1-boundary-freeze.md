@@ -1,52 +1,44 @@
 # Phase 1 Boundary Freeze
 
-This repo is frozen as the **template for concrete AeroBeat spatial UI adapter repos**.
+This repo is now frozen as the **touch-driven spatial UI provider bootstrap lane** in the AeroBeat spatial UI family.
 
-The original Phase 1 freeze still defines the boundary, but downstream repos should now read it through the post-Phase-3 architecture truth:
+## What this repo owns
 
-- `aerobeat-input-core` owns the canonical interaction contract and native 2D bridge path
-- `aerobeat-spatial-ui-core` owns the shared packaged helper/provider-support layer
-- concrete repos generated from this template own one provider lane at a time
-- consumer/proof repos may still host temporary composition seams, but they do not become the long-term owner of packaged provider fallback behavior
+`aerobeat-spatial-ui-touch` is the home of the future concrete provider layer for touch interaction on projected/world-space UI surfaces.
 
-## What this repo is allowed to own
+That touch provider lane is expected to own:
 
-This template is the place where downstream spatial adapter repos inherit:
+- touch pointer lifecycle/runtime state for spatial UI hosts
+- touch press ownership, drag ownership, and release continuity for projected spatial surfaces
+- off-surface continuation using prior projected state when continuity exists
+- explicit canceled-touch publication policy
+- provider-readable runtime diagnostics for touch semantics
 
-- concrete adapter package structure
-- dependency truth pointing to `aerobeat-input-core` as the contract owner
-- dependency truth pointing to `aerobeat-spatial-ui-core` as the shared helper-layer owner
-- placeholder runtime and configuration scaffolding for future concrete adapters
-- docs and tests that make the ownership boundary obvious before real extraction work begins
-- guidance that concrete touch and XR work should branch into separate provider repos rather than staying as consumer-repo glue
+## What this repo does **not** own
 
-## What this repo is not allowed to own
-
-This template must not turn into a real adapter implementation and must not redefine the AeroBeat UI interaction contract.
+This Phase 1 bootstrap explicitly prevents the repo from drifting into other ownership lanes.
 
 It does **not** own:
 
-- canonical contract event types
-- the interaction bus
-- event/source/surface/phase taxonomy
-- native 2D bridge logic
-- shared cross-provider helper-layer ownership
-- provider-local rect/projected-target fallback ownership
-- consumer-repo proof-host glue or compatibility wrapper ownership
-- concrete mouse, touch, or XR runtime behavior
+- the canonical interaction contract
+- event taxonomy, event classes, or the interaction bus
+- the native 2D bridge path
+- shared cross-provider spatial helper ownership
+- proof-host camera ray creation or world-hit acquisition from `aerobeat-ui-kit-community`
+- scene-specific proof-host composition from `aerobeat-ui-kit-community`
 
-Those concerns stay in their owning repos:
+## Dependency truth
 
-- `aerobeat-input-core` owns the canonical interaction contract and native 2D bridge path
-- `aerobeat-spatial-ui-core` owns shared helper scaffolding used by concrete adapter repos
-- repos generated from this template own their concrete provider/runtime behavior
-- touch work should graduate into a dedicated `aerobeat-spatial-ui-touch` style provider repo
-- XR work should graduate into a dedicated `aerobeat-spatial-ui-xr` style provider repo
+This repo sits on top of:
 
-## Why placeholder runtime classes exist here
+- `aerobeat-input-core` — canonical contract owner
+- `aerobeat-spatial-ui-core` — shared helper-layer owner
 
-The placeholder runtime classes added to this template are intentionally inert. They exist so downstream repos start from the correct boundary shape instead of the old bootstrap shape.
+Those dependencies are represented in `.testbed/addons.jsonc`, while the runtime provider files under `src/providers/touch/` establish the concrete touch-lane boundary.
 
-If future work needs real world-hit logic, projected coordinate mapping, runtime publish behavior, or provider-local hover/capture ownership, that work belongs in a concrete adapter repo created from this template rather than in the template itself.
+## Phase progression
 
-If a consumer/proof repo still contains temporary scene glue, world-ray acquisition, or compatibility wrappers, keep those seams local there until the relevant provider lane is ready. Do not teach generated adapter repos to own that consumer glue by default.
+- **Phase 1:** boundary freeze and truthful bootstrap scaffolding
+- **Phase 2:** first real extracted touch-provider slice
+
+The Phase 2 extraction plan lives in `docs/phase-2-first-touch-provider-extraction.md`. That future extraction should move reusable touch lifecycle/runtime semantics only, while keeping world-hit acquisition, proof-scene composition, and canonical contract ownership outside this repo.
