@@ -41,3 +41,28 @@ func test_runtime_state_reports_owner_hover_and_manifest_truth() -> void:
 	assert_eq(summary.get("expected_source_variant"), "screen_touch")
 	assert_eq(summary.get("expected_surface_type"), "hybrid_3d_gui")
 	assert_eq(summary.get("expected_verification_status"), "unverified")
+
+
+func test_provider_exposes_packaged_probe_helpers_for_target_resolution_and_projected_data() -> void:
+	var harness = HARNESS_SCRIPT.new()
+	var runtime = await harness.spawn(self)
+	var provider = runtime["provider"]
+	var surface = runtime["surface"]
+
+	var primary_hit := harness.build_hit(surface, Vector2(0.20, 0.20), Vector2(200.0, 200.0))
+	assert_eq(str(provider.resolve_target_path_for_hit(surface, primary_hit)), "Root/PrimaryActionButton")
+
+	var projected_data: Dictionary = provider.build_projected_data_for_hit(
+		surface,
+		primary_hit,
+		{"host_surface": "PanelInputSurface", "target_resolution": "rect_target_specs"},
+		{},
+		NodePath("Root/PrimaryActionButton")
+	)
+	var raw_metadata: Dictionary = projected_data.get("raw_metadata", {})
+	assert_eq(str(projected_data.get("target_path", NodePath())), "Root/PrimaryActionButton")
+	assert_eq(str(raw_metadata.get("published_target_path", "")), "Root/PrimaryActionButton")
+	assert_eq(str(raw_metadata.get("live_target_path", "")), "Root/PrimaryActionButton")
+	assert_eq(str(raw_metadata.get("owner_target_path", "")), "Root/PrimaryActionButton")
+	assert_eq(str(raw_metadata.get("host_surface", "")), "PanelInputSurface")
+	assert_eq(str(raw_metadata.get("target_resolution", "")), "rect_target_specs")

@@ -92,6 +92,34 @@ func reset_runtime_state() -> void:
 	_last_pointer_id = StringName()
 	_last_touch_index = -1
 
+func resolve_target_for_hit(surface, projected_hit: Dictionary) -> Dictionary:
+	return _resolve_target_for_hit(surface, projected_hit)
+
+func resolve_target_path_for_hit(surface, projected_hit: Dictionary) -> NodePath:
+	var resolution_result := resolve_target_for_hit(surface, projected_hit)
+	return resolution_result.get("target_path", NodePath())
+
+func build_projected_data_for_hit(
+	surface,
+	projected_hit: Dictionary,
+	context: Dictionary = {},
+	previous_projected: Dictionary = {},
+	owner_target_path: NodePath = NodePath(),
+	live_target_path: NodePath = NodePath()
+) -> Dictionary:
+	var has_hit: bool = bool(projected_hit.get("hit", false))
+	var resolution_result: Dictionary = resolve_target_for_hit(surface, projected_hit) if has_hit else {"target_path": NodePath(), "raw_metadata": {}}
+	var resolved_live_target_path: NodePath = live_target_path if live_target_path != NodePath() else resolution_result.get("target_path", NodePath())
+	return _build_projected_data(
+		surface,
+		projected_hit,
+		previous_projected,
+		owner_target_path,
+		resolved_live_target_path,
+		resolution_result.get("raw_metadata", {}).duplicate(true),
+		context
+	)
+
 func publish_input_event(
 	adapter,
 	surface,
