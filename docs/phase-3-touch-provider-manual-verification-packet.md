@@ -1,6 +1,6 @@
 # Phase 3 Touch Provider Manual-Verification Packet
 
-**Status:** Proposed next slice only — do not treat as implemented
+**Status:** Provider-repo harness slice implemented; downstream `aerobeat-ui-kit-community` proof remains separate
 
 This document defines the **next executable touch completion slice after the interaction-summary seam** and the concrete manual-verification/test-scene packet needed to prove `aerobeat-spatial-ui-touch` beyond pure code tests.
 

@@ -16,7 +16,7 @@ This repository now contains:
 
 The current implementation is intentionally narrow:
 
-- **included now:** touch lifecycle/runtime semantics, owner continuity, off-surface release continuation, canceled-touch publication, provider runtime diagnostics, and packaged shared-helper composition
+- **included now:** touch lifecycle/runtime semantics, owner continuity, off-surface release continuation, canceled-touch publication, provider runtime diagnostics, a provider-owned human verification harness, and packaged shared-helper composition
 - **still intentionally excluded:** world-hit acquisition, proof-host composition/debug UI, canonical contract ownership, and shared helper ownership changes
 
 ## Planned responsibility boundary
@@ -109,11 +109,36 @@ godot --headless --path .testbed --script addons/gut/gut_cmdln.gd \
   -gexit
 ```
 
+## Provider-owned human verification harness
+
+The repo-local human harness lives at:
+
+- `.testbed/scenes/touch_provider_verification_harness.tscn`
+- `.testbed/scripts/touch_provider_verification_harness.gd`
+
+It is intentionally provider-owned and limited in scope. The harness proves that this repo's packaged touch provider runtime is the seam in use, that it publishes through the canonical Aero input contract path, and that it reports truthful provider-owned runtime state such as active owner/live target continuity and last release ownership.
+
+What it does **not** own:
+
+- world-hit acquisition
+- hybrid proof-scene composition
+- downstream integration proof
+- contract-definition or verification-status policy ownership
+
+To inspect it manually from the repo root:
+
+```bash
+godot --editor --path .testbed
+```
+
+Then open `res://scenes/touch_provider_verification_harness.tscn` in the hidden testbed project.
+
 ## Validation notes
 
 - `.testbed/addons.jsonc` is the committed dev/test dependency manifest.
 - `docs/phase-1-boundary-freeze.md` records the ownership line.
 - `docs/phase-2-first-touch-provider-extraction.md` records the extracted slice and parity truth.
-- Provider-local tests pin semantic goals such as press/release continuity, drag ordering, cancel handling, runtime state, and dependency truth.
+- `docs/phase-3-touch-provider-manual-verification-packet.md` records the provider-harness packet and downstream boundary.
+- Provider-local tests pin semantic goals such as press/release continuity, drag ordering, cancel handling, runtime state, dependency truth, and the provider-owned verification harness HUD/readout.
 - `source_variant == "screen_touch"`, `surface_type == "hybrid_3d_gui"`, and `verification_status == "unverified"` remain required runtime truth.
 - Consumer proof in `aerobeat-ui-kit-community` remains mandatory downstream.

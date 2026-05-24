@@ -4,8 +4,8 @@ const BUS_SCRIPT := preload("res://addons/aerobeat-input-core/src/ui/ui_interact
 const ADAPTER_SCRIPT := preload("res://addons/aerobeat-input-core/src/ui/adapters/hybrid_subviewport_input_adapter.gd")
 const SURFACE_DESCRIPTOR_SCRIPT := preload("res://addons/aerobeat-spatial-ui-core/src/helpers/surfaces/aero_spatial_surface_descriptor.gd")
 const PROJECTION_HELPER_SCRIPT := preload("res://addons/aerobeat-spatial-ui-core/src/helpers/providers/aero_spatial_projection_helper.gd")
-const PROVIDER_SCRIPT := preload("res://../src/providers/touch/aero_spatial_ui_touch_provider.gd")
-const CONFIG_SCRIPT := preload("res://../src/providers/touch/aero_spatial_ui_touch_provider_config.gd")
+const PROVIDER_SCRIPT_PATH := "res://../src/providers/touch/aero_spatial_ui_touch_provider.gd"
+const CONFIG_SCRIPT_PATH := "res://../src/providers/touch/aero_spatial_ui_touch_provider_config.gd"
 
 const SURFACE_ID: StringName = &"hybrid_touch"
 const TARGET_PATH := NodePath("Root/PrimaryActionButton")
@@ -18,6 +18,13 @@ var _projection_helper = PROJECTION_HELPER_SCRIPT.new()
 func spawn(test_case: GutTest, threshold := 12.0) -> Dictionary:
 	var host := Node.new()
 	host.name = "HarnessHost"
+	test_case.add_child_autofree(host)
+	await test_case.get_tree().process_frame
+	var runtime := await attach_runtime(host, threshold)
+	await test_case.get_tree().process_frame
+	return runtime
+
+func attach_runtime(host: Node, threshold := 12.0) -> Dictionary:
 	var bus = BUS_SCRIPT.new()
 	bus.name = "Bus"
 	host.add_child(bus)
@@ -29,17 +36,16 @@ func spawn(test_case: GutTest, threshold := 12.0) -> Dictionary:
 	adapter.surface_pixel_size = Vector2(1000.0, 1000.0)
 	adapter.drag_threshold_pixels = threshold
 	host.add_child(adapter)
-	test_case.add_child_autofree(host)
-	await test_case.get_tree().process_frame
+	await host.get_tree().process_frame
 
 	var events: Array = []
 	bus.interaction_event.connect(func(event): events.append(event))
 
-	var config = CONFIG_SCRIPT.new()
+	var config = load(CONFIG_SCRIPT_PATH).new()
 	config.drag_threshold_pixels = threshold
 	config.host_surface = "PanelInputSurface"
 	config.target_resolution = "rect_target_specs"
-	var provider = PROVIDER_SCRIPT.new(config)
+	var provider = load(PROVIDER_SCRIPT_PATH).new(config)
 	return {
 		"host": host,
 		"bus": bus,
@@ -88,6 +94,36 @@ func event_phases(events: Array) -> Array[String]:
 	for event in events:
 		phases.append(str(event.phase))
 	return phases
+
+func describe_harness_snapshot(provider, last_event = null) -> Dictionary:
+	var probe: Dictionary = provider.describe_verification_probe() if provider != null else {}
+	var projected_data: Dictionary = probe.get("last_projected_data", {})
+	var raw_metadata: Dictionary = projected_data.get("raw_metadata", {})
+	return {
+		"provider_lane": "touch",
+		"packaged_provider_active": provider != null,
+		"provider_runtime_source": provider.get_script().resource_path if provider != null else PROVIDER_SCRIPT_PATH,
+		"provider_runtime_seam": "repo_packaged_provider" if provider != null else "missing",
+		"source_variant": str(last_event.source_variant) if last_event != null else str(probe.get("source_variant", "waiting")),
+		"phase": str(last_event.phase) if last_event != null else str(probe.get("last_published_phase", "waiting")),
+		"target_path": str(last_event.target_path) if last_event != null else str(probe.get("preferred_target_path", NodePath())),
+		"verification_status": str(last_event.verification_status) if last_event != null else str(probe.get("verification_status", "waiting")),
+		"verification_notes": str(last_event.verification_notes) if last_event != null else "No normalized interaction published yet.",
+		"active_pointer_id": str(probe.get("active_pointer_id", "")),
+		"is_touch_active": bool(probe.get("is_touch_active", false)),
+		"state_phase": str(probe.get("state_phase", "")),
+		"owner_target_path": str(probe.get("owner_target_path", NodePath())),
+		"live_target_path": str(probe.get("live_target_path", NodePath())),
+		"preferred_target_path": str(probe.get("preferred_target_path", NodePath())),
+		"last_release_target_path": str(probe.get("last_release_target_path", "")),
+		"last_forwarded_panel_event": str(probe.get("last_forwarded_panel_event", "waiting for projected touch input")),
+		"last_projected_hit_summary": "owner=%s live=%s published=%s" % [
+			str(raw_metadata.get("owner_target_path", "none")),
+			str(raw_metadata.get("hover_target_path", "none")),
+			str(raw_metadata.get("published_target_path", "none")),
+		],
+		"probe": probe,
+	}
 
 func _build_surface():
 	var surface = SURFACE_DESCRIPTOR_SCRIPT.new()

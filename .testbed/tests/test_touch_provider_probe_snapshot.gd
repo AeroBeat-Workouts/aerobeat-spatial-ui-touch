@@ -18,6 +18,7 @@ func test_probe_snapshot_exposes_provider_owned_manual_verification_truth() -> v
 
 	var probe: Dictionary = provider.describe_verification_probe()
 	assert_true(bool(MANIFEST_SCRIPT.ownership_summary().get("supports_verification_probe_snapshot", false)))
+	assert_true(bool(MANIFEST_SCRIPT.ownership_summary().get("supports_provider_owned_human_verification_harness", false)))
 	assert_eq(int(probe.get("active_pointer_count", -1)), 1)
 	assert_eq(str(probe.get("active_pointer_id", "")), "touch_0")
 	assert_true(bool(probe.get("is_touch_active", false)))

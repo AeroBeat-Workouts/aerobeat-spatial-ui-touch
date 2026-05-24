@@ -18,6 +18,7 @@ static func ownership_summary() -> Dictionary:
 		"owns_proof_host_world_hit_acquisition": false,
 		"implements_touch_runtime_behavior": true,
 		"supports_verification_probe_snapshot": true,
+		"supports_provider_owned_human_verification_harness": true,
 		"expected_source_variant": "screen_touch",
 		"expected_surface_type": "hybrid_3d_gui",
 		"expected_verification_status": "unverified",

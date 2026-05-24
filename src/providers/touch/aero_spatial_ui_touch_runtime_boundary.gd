@@ -32,6 +32,7 @@ static func describe_extracted_slice() -> Dictionary:
 		"owns_provider_runtime_diagnostics": true,
 		"owns_interaction_summary_snapshot": true,
 		"owns_verification_probe_snapshot": true,
+		"owns_provider_owned_human_verification_harness": true,
 		"owns_contract_definition": false,
 		"owns_native_2d_bridge": false,
 		"owns_world_hit_acquisition": false,
