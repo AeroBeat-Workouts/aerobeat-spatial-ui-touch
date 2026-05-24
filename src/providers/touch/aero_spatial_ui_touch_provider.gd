@@ -11,6 +11,9 @@ const CONTRACT_OWNER_PACKAGE := "aerobeat-input-core"
 const SHARED_HELPER_OWNER_PACKAGE := "aerobeat-spatial-ui-core"
 const DEFAULT_POINTER_ID_PREFIX := "touch_"
 const DEFAULT_DRAG_THRESHOLD_PIXELS := 12.0
+const SOURCE_VARIANT := "screen_touch"
+const SURFACE_TYPE := "hybrid_3d_gui"
+const VERIFICATION_STATUS := "unverified"
 
 var pointer_id_prefix := DEFAULT_POINTER_ID_PREFIX
 var drag_threshold_pixels := DEFAULT_DRAG_THRESHOLD_PIXELS
@@ -59,9 +62,9 @@ func describe_boundary() -> Dictionary:
 		"owns_native_2d_bridge": false,
 		"owns_contract_definition": false,
 		"owns_shared_helper_layer": false,
-		"expected_source_variant": "screen_touch",
-		"expected_surface_type": "hybrid_3d_gui",
-		"expected_verification_status": "unverified",
+		"expected_source_variant": SOURCE_VARIANT,
+		"expected_surface_type": SURFACE_TYPE,
+		"expected_verification_status": VERIFICATION_STATUS,
 	}
 
 func describe_runtime_state() -> Dictionary:
@@ -89,6 +92,25 @@ func describe_runtime_state() -> Dictionary:
 	}
 
 func describe_interaction_summary() -> Dictionary:
+	var probe := describe_verification_probe()
+	return {
+		"is_touch_active": probe.get("is_touch_active", false),
+		"active_pointer_count": probe.get("active_pointer_count", 0),
+		"active_pointer_id": probe.get("active_pointer_id", ""),
+		"preferred_target_path": probe.get("preferred_target_path", NodePath()),
+		"preferred_target_label": probe.get("preferred_target_label", "none"),
+		"owner_target_path": probe.get("owner_target_path", NodePath()),
+		"owner_target_label": probe.get("owner_target_label", "none"),
+		"live_target_path": probe.get("live_target_path", NodePath()),
+		"live_target_label": probe.get("live_target_label", "none"),
+		"state_phase": probe.get("state_phase", ""),
+		"has_active_owner": probe.get("has_active_owner", false),
+		"has_active_live_target": probe.get("has_active_live_target", false),
+		"last_release_target_path": probe.get("last_release_target_path", ""),
+		"last_forwarded_panel_event": probe.get("last_forwarded_panel_event", ""),
+	}
+
+func describe_verification_probe() -> Dictionary:
 	var owner_summary := _describe_active_owner_state()
 	var owner_target_path: NodePath = owner_summary.get("owner_target_path", NodePath())
 	var live_target_path: NodePath = owner_summary.get("live_target_path", NodePath())
@@ -96,20 +118,25 @@ func describe_interaction_summary() -> Dictionary:
 	var has_active_pointer := not _active_touch_state.is_empty()
 	var active_phase: String = _last_published_phase if has_active_pointer else ""
 	return {
-		"is_touch_active": has_active_pointer,
 		"active_pointer_count": _active_touch_state.size(),
 		"active_pointer_id": owner_summary.get("pointer_id", ""),
-		"preferred_target_path": preferred_target_path,
-		"preferred_target_label": _path_label(preferred_target_path),
+		"is_touch_active": has_active_pointer,
+		"state_phase": active_phase,
+		"last_published_phase": _last_published_phase,
 		"owner_target_path": owner_target_path,
 		"owner_target_label": _path_label(owner_target_path),
 		"live_target_path": live_target_path,
 		"live_target_label": _path_label(live_target_path),
-		"state_phase": active_phase,
+		"preferred_target_path": preferred_target_path,
+		"preferred_target_label": _path_label(preferred_target_path),
 		"has_active_owner": owner_summary.get("has_active_owner", false),
 		"has_active_live_target": owner_summary.get("has_active_live_target", false),
 		"last_release_target_path": _last_release_target_path,
 		"last_forwarded_panel_event": _last_forwarded_panel_event,
+		"last_projected_data": _last_projected_data.duplicate(true),
+		"source_variant": SOURCE_VARIANT,
+		"surface_type": SURFACE_TYPE,
+		"verification_status": VERIFICATION_STATUS,
 	}
 
 func reset_runtime_state() -> void:

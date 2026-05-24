@@ -1,0 +1,31 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/touch_provider_probe_panel.tscn" id="1"]
+[ext_resource type="Script" path="res://scripts/touch_provider_probe_fixture.gd" id="2"]
+
+[node name="TouchProviderProbeFixture" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2")
+
+[node name="Column" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+
+[node name="FixtureLabel" type="Label" parent="Column" unique_name_in_owner=true]
+layout_mode = 2
+text = "fixture targets owner=none live=none phase="
+
+[node name="ProbePanel" parent="Column" instance=ExtResource("1") unique_name_in_owner=true]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
