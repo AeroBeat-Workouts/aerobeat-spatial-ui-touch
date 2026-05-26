@@ -1,7 +1,7 @@
 extends GutTest
 
 const HARNESS_SCRIPT := preload("res://tests/support/touch_provider_test_harness.gd")
-const MANIFEST_SCRIPT := preload("res://../src/providers/touch/aero_spatial_ui_touch_manifest.gd")
+const MANIFEST_SCRIPT := preload("res://addons/aerobeat-spatial-ui-touch/src/providers/touch/aero_spatial_ui_touch_manifest.gd")
 
 func test_runtime_state_reports_owner_hover_and_manifest_truth() -> void:
 	var harness = HARNESS_SCRIPT.new()

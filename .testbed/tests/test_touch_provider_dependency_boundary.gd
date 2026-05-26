@@ -1,6 +1,6 @@
 extends GutTest
 
-const RUNTIME_BOUNDARY := preload("res://../src/providers/touch/aero_spatial_ui_touch_runtime_boundary.gd")
+const RUNTIME_BOUNDARY := preload("res://addons/aerobeat-spatial-ui-touch/src/providers/touch/aero_spatial_ui_touch_runtime_boundary.gd")
 const README_PATH := "res://../README.md"
 
 func test_dependency_boundary_pins_existing_owners_without_reclaiming_host_seams() -> void:

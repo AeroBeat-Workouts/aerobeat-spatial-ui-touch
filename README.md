@@ -82,6 +82,17 @@ cd .testbed
 godotenv addons install
 ```
 
+This bootstrap step now restores both:
+
+- external dependencies (`aerobeat-input-core`, `aerobeat-spatial-ui-core`, `gut`)
+- this repo's own package mount under `res://addons/aerobeat-spatial-ui-touch/` via the local-root GodotEnv symlink entry in `.testbed/addons.jsonc`
+
+If you want the canonical workspace refresh path instead of calling `godotenv` directly, run:
+
+```bash
+/home/derrick/.openclaw/workspace/scripts/godotenv-sync --repo /home/derrick/.openclaw/workspace/projects/aerobeat/aerobeat-spatial-ui-touch/.testbed
+```
+
 ### Open the workbench
 
 From the repo root:
@@ -135,10 +146,11 @@ Then open `res://scenes/touch_provider_verification_harness.tscn` in the hidden 
 
 ## Validation notes
 
-- `.testbed/addons.jsonc` is the committed dev/test dependency manifest.
+- `.testbed/addons.jsonc` is the committed dev/test dependency manifest, including the repo's own local-root self-mount entry for `aerobeat-spatial-ui-touch`.
 - `docs/phase-1-boundary-freeze.md` records the ownership line.
 - `docs/phase-2-first-touch-provider-extraction.md` records the extracted slice and parity truth.
 - `docs/phase-3-touch-provider-manual-verification-packet.md` records the provider-harness packet and downstream boundary.
 - Provider-local tests pin semantic goals such as press/release continuity, drag ordering, cancel handling, runtime state, dependency truth, and the provider-owned verification harness HUD/readout.
 - `source_variant == "screen_touch"`, `surface_type == "hybrid_3d_gui"`, and `verification_status == "unverified"` remain required runtime truth.
 - Consumer proof in `aerobeat-ui-kit-community` remains mandatory downstream.
+- To catch installed-addon path regressions, refresh the hidden testbed from the manifest, verify `.testbed/addons/aerobeat-spatial-ui-touch/` exists, then run the installed-addon smoke script so the packaged provider path is exercised end-to-end.

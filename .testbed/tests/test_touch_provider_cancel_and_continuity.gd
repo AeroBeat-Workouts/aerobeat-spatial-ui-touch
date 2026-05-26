@@ -1,7 +1,7 @@
 extends GutTest
 
 const HARNESS_SCRIPT := preload("res://tests/support/touch_provider_test_harness.gd")
-const RUNTIME_BOUNDARY := preload("res://../src/providers/touch/aero_spatial_ui_touch_runtime_boundary.gd")
+const RUNTIME_BOUNDARY := preload("res://addons/aerobeat-spatial-ui-touch/src/providers/touch/aero_spatial_ui_touch_runtime_boundary.gd")
 
 func test_cancel_and_entry_policy_match_first_extraction_truth() -> void:
 	var harness = HARNESS_SCRIPT.new()

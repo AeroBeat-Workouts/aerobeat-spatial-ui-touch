@@ -4,8 +4,9 @@ const BUS_SCRIPT := preload("res://addons/aerobeat-input-core/src/ui/ui_interact
 const ADAPTER_SCRIPT := preload("res://addons/aerobeat-input-core/src/ui/adapters/hybrid_subviewport_input_adapter.gd")
 const SURFACE_DESCRIPTOR_SCRIPT := preload("res://addons/aerobeat-spatial-ui-core/src/helpers/surfaces/aero_spatial_surface_descriptor.gd")
 const PROJECTION_HELPER_SCRIPT := preload("res://addons/aerobeat-spatial-ui-core/src/helpers/providers/aero_spatial_projection_helper.gd")
-const PROVIDER_SCRIPT_PATH := "res://../src/providers/touch/aero_spatial_ui_touch_provider.gd"
-const CONFIG_SCRIPT_PATH := "res://../src/providers/touch/aero_spatial_ui_touch_provider_config.gd"
+const INSTALLED_TOUCH_PACKAGE_ROOT := "res://addons/aerobeat-spatial-ui-touch"
+const PROVIDER_SCRIPT_PATH := INSTALLED_TOUCH_PACKAGE_ROOT + "/src/providers/touch/aero_spatial_ui_touch_provider.gd"
+const CONFIG_SCRIPT_PATH := INSTALLED_TOUCH_PACKAGE_ROOT + "/src/providers/touch/aero_spatial_ui_touch_provider_config.gd"
 
 const SURFACE_ID: StringName = &"hybrid_touch"
 const TARGET_PATH := NodePath("Root/PrimaryActionButton")
